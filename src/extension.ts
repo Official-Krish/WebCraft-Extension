@@ -10,7 +10,6 @@ export function activate(context: vscode.ExtensionContext) {
 	let ws = initWS(context);
 
 	ws.onerror = (error) => {
-		console.log("Error connecting to WS, reconnecting...", error);
 		initWS(context);
 	};
 
@@ -64,17 +63,17 @@ function initWS(context: vscode.ExtensionContext) {
 	const ws = new WebSocket(process.env.WS_RELAYER_URL || "ws://localhost:9093");
 
 	ws.onopen = () => {
+		/* The line `console.log("Connected to WS");` is logging a message to the console indicating that the
+		WebSocket connection has been successfully established. This message serves as a confirmation that
+		the extension has connected to the WebSocket server. */
 		ws.send(JSON.stringify({
 			event: "subscribe",
 			data: null
 		}));
 	};
 
-	ws.onmessage = async (event: any) => {
-		const data: any = JSON.parse(event.data);
-
-		console.log(data);
-
+	ws.onmessage = async (e: any) => {
+		const data: any = JSON.parse(e.data);
 		if (data.type === "command"){
 			vscode.commands.executeCommand('extension.sendToAiTerminal', data.content);
 		}
@@ -103,7 +102,6 @@ function initWS(context: vscode.ExtensionContext) {
 		}
 
 		if (data.type === "prompt-end"){
-			console.log("prompt-end");
 			vscode.commands.executeCommand('extension.sendToAiTerminal', 'npm run dev');
 		}
 	}
