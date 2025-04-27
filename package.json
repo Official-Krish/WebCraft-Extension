@@ -1,6 +1,6 @@
 {
-  "name": "pixlr-listener",
-  "displayName": "pixlr-listener",
+  "name": "webcraft-listener",
+  "displayName": "webCraft-listener",
   "description": "Listens to changes from an LLM and runs those commands/changes those files",
   "version": "0.0.1",
   "engines": {
@@ -14,7 +14,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "pixlr-listener.helloWorld",
+        "command": "webCraft-listener.helloWorld",
         "title": "Hello World"
       }
     ]

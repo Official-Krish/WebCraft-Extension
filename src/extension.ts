@@ -10,12 +10,13 @@ export function activate(context: vscode.ExtensionContext) {
 	let ws = initWS(context);
 
 	ws.onerror = (error) => {
+		console.log("Error connecting to WS, reconnecting...", error);
 		initWS(context);
 	};
 
 	const aiTerninal = vscode.window.createTerminal({
 		name: "AI Terminal",
-		hideFromUser: true,
+		hideFromUser: false,
 	});
 
 	context.globalState.update("aiTerminalId", aiTerninal.processId);
@@ -46,8 +47,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(sendToAiTerminal);
 
-	const disposable = vscode.commands.registerCommand('Pixlr-listener.helloWorld', () => {
-		vscode.window.showInformationMessage('Hello World from Pixlr-listener!');
+	const disposable = vscode.commands.registerCommand('webCraft-listener.helloWorld', () => {
+		vscode.window.showInformationMessage('Hello World from webCraft-listener!');
 		vscode.commands.executeCommand("workbench.action.terminal.new");
 		vscode.commands.executeCommand("workbench.action.terminal.sendSequence", {text: "npm run build"});
 		vscode.commands.executeCommand("workbench.action.terminal.sendSequence", {text: "\r"});
@@ -63,17 +64,17 @@ function initWS(context: vscode.ExtensionContext) {
 	const ws = new WebSocket(process.env.WS_RELAYER_URL || "ws://localhost:9093");
 
 	ws.onopen = () => {
-		/* The line `console.log("Connected to WS");` is logging a message to the console indicating that the
-		WebSocket connection has been successfully established. This message serves as a confirmation that
-		the extension has connected to the WebSocket server. */
 		ws.send(JSON.stringify({
 			event: "subscribe",
 			data: null
 		}));
 	};
 
-	ws.onmessage = async (e: any) => {
-		const data: any = JSON.parse(e.data);
+	ws.onmessage = async (event: any) => {
+		const data: any = JSON.parse(event.data);
+
+		console.log(data);
+
 		if (data.type === "command"){
 			vscode.commands.executeCommand('extension.sendToAiTerminal', data.content);
 		}
@@ -102,6 +103,7 @@ function initWS(context: vscode.ExtensionContext) {
 		}
 
 		if (data.type === "prompt-end"){
+			console.log("prompt-end");
 			vscode.commands.executeCommand('extension.sendToAiTerminal', 'npm run dev');
 		}
 	}
