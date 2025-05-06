@@ -61,7 +61,7 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {}
 
 function initWS(context: vscode.ExtensionContext) {
-	const ws = new WebSocket(process.env.WS_RELAYER_URL || "ws://pixlr-ws-relayer.onrender.com");
+	const ws = new WebSocket(process.env.WS_RELAYER_URL || "ws://localhost:9093");
 
 	ws.onopen = () => {
 		ws.send(JSON.stringify({
